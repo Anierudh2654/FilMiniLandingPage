@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FilMini</title>
+  <link rel="icon" type="image/png" href="images/Logo_FilMini.png" />
+<link rel="apple-touch-icon" type="image/png" href="images/Logo_FilMini.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Cormorant+SC:wght@300;400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bone:       #F4EFE6;
+      --offwhite:   #FAF8F3;
+      --parchment:  #ECE5D6;
+      --ink:        #181512;
+      --ink-light:  #3A3530;
+      --ink-muted:  #8A837A;
+      --rule:       #D8D1C6;
+      --rule-dark:  #B5ADA2;
+      --btn-radius: 0px 10px 10px 10px;
+      --ease:       cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--ink);
+      color: var(--bone);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: var(--bone); color: var(--ink); }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--ink); }
+    ::-webkit-scrollbar-thumb { background: var(--rule-dark); border-radius: 99px; }
+
+    #page-wrapper { opacity: 0; }
+
+    .hero-bg,
+    .hero-bg-dark,
+    .hero-bg-grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .hero-bg {
+      z-index: 0;
+      background: url('images/Wall Image 2.png') center center / cover no-repeat;
+      opacity: 0;
+    }
+
+    .hero-bg-dark {
+      z-index: 1;
+      background: #0a0806;
+      opacity: 0;
+    }
+
+    .hero-bg-grain {
+      z-index: 2;
+      background:
+        radial-gradient(ellipse at 50% 0%, transparent 25%, rgba(10,8,6,0.5) 100%),
+        linear-gradient(to bottom, rgba(10,8,6,0.1) 0%, rgba(10,8,6,0.65) 100%);
+    }
+
+    .hero-bg-grain::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 128px 128px;
+      opacity: 0.4;
+    }
+
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;   /* allow it to grow if needed */
+  justify-content: center;  /* center content vertically */
+      display: flex;
+      flex-direction: column;
+      
+      padding: 0 80px 80px;
+      overflow: visible;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
+      letter-spacing: 0.36em;
+      text-transform: uppercase;
+      color: var(--rule);
+      margin-bottom: 20px;
+      visibility: hidden;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant SC', serif;
+      font-weight: 300;
+      font-size: clamp(72px, 10vw, 140px);
+      letter-spacing: 0.08em;
+      line-height: 0.92;
+      color: var(--bone);
+      margin-bottom: 32px;
+      visibility: hidden;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      color: var(--parchment);
+    }
+
+    .hero-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      color: var(--rule);
+      max-width: 480px;
+      line-height: 1.65;
+      margin-bottom: 48px;
+      visibility: hidden;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      visibility: hidden;
+    }
+
+    .hero-btn {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding: 14px 32px;
+      border-radius: var(--btn-radius);
+      border: 1px solid var(--bone);
+      background: transparent;
+      color: var(--bone);
+      cursor: pointer;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      transition: color 0.4s var(--ease), transform 0.3s var(--ease);
+    }
+
+    .hero-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--bone);
+      border-radius: inherit;
+      transform: translateY(105%);
+      transition: transform 0.42s var(--ease);
+      z-index: -1;
+    }
+
+    .hero-btn:hover { color: var(--ink); transform: translateY(-2px); }
+    .hero-btn:hover::after { transform: translateY(0); }
+
+    .hero-btn.filled { background: var(--bone); color: var(--ink); }
+    .hero-btn.filled::after { background: var(--ink); }
+    .hero-btn.filled:hover { color: var(--bone); }
+
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      right: 80px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      visibility: hidden;
+      z-index: 10;
+    }
+
+    .hero-scroll-hint span {
+      font-family: 'Courier Prime', monospace;
+      font-size: 9px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      writing-mode: vertical-rl;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 60px;
+      background: var(--rule);
+      transform-origin: top;
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50%       { opacity: 1;   transform: scaleY(1.15); }
+    }
+
+    .scroll-canvas {
+      position: relative;
+      z-index: 20;
+     
+      background: transparent;
+    }
+
+    .section-rule {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--rule-dark), transparent);
+    }
+
+    .feature-section {
+      padding: 140px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+      background: rgba(10,8,6,0.82);
+      position: relative;
+      overflow: visible;
+    }
+
+    .feature-section:first-child {
+      padding-top: 160px;
+      background: linear-gradient(to bottom, transparent 0%, rgba(10,8,6,0.82) 14%);
+    }
+
+    .feature-section.reverse .feature-img-wrap { order: 2; }
+    .feature-section.reverse .feature-text     { order: 1; }
+
+    .feature-section.landscape {
+      grid-template-columns: 1fr;
+    }
+
+    .feature-section.landscape .feature-img-wrap { order: 0; }
+    .feature-section.landscape .feature-text     { order: 1; }
+
+    .feature-section.landscape .feature-text {
+      max-width: 680px;
+    }
+
+    .feature-img-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-img-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 0px 12px 12px 12px;
+      object-fit: contain;
+      filter: grayscale(18%) contrast(1.04);
+      transition: filter 0.6s var(--ease);
+    }
+
+    .feature-img-wrap:hover img { filter: grayscale(0%) contrast(1.06); }
+
+    .feature-img-wrap::after {
+      content: '';
+      position: absolute;
+      bottom: -16px;
+      right: -16px;
+      width: 80px;
+      height: 80px;
+      border-bottom: 1px solid var(--rule);
+      border-right: 1px solid var(--rule);
+      border-radius: 0 0 12px 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .reverse .feature-img-wrap::after {
+      right: auto;
+      left: -16px;
+      border-right: none;
+      border-left: 1px solid var(--rule);
+      border-radius: 0 0 0 12px;
+    }
+
+    .feature-text {
+      display: flex;
+      flex-direction: column;
+      padding-top: 12px;
+      overflow: visible;
+    }
+
+    .feature-index {
+      font-family: 'Courier Prime', monospace;
+      font-size: 9px;
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      visibility: hidden;
+    }
+
+    .feature-index::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule-dark);
+      max-width: 48px;
+    }
+
+    .feature-title {
+      font-family: 'Cormorant SC', serif;
+      font-weight: 300;
+      font-size: clamp(36px, 4vw, 58px);
+      letter-spacing: 0.06em;
+      line-height: 1.05;
+      color: var(--bone);
+      margin-bottom: 28px;
+      visibility: hidden;
+    }
+
+    .feature-title em {
+      font-style: italic;
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--rule);
+    }
+
+    .feature-body {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(17px, 1.6vw, 21px);
+      font-weight: 300;
+      line-height: 1.8;
+      color: var(--rule);
+      letter-spacing: 0.02em;
+      margin-bottom: 40px;
+      visibility: hidden;
+    }
+
+    .feature-tag {
+      font-family: 'Courier Prime', monospace;
+      font-size: 9px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      border-top: 1px solid var(--rule-dark);
+      padding-top: 20px;
+      margin-top: auto;
+      visibility: hidden;
+    }
+
+    .manifesto-section {
+      padding: 160px 80px 200px;
+      text-align: center;
+      background: rgba(10,8,6,0.96);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .manifesto-bg-image {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1500px;
+      height: 1000px;
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+      background: url('images/Wall5.png') center center / cover no-repeat;
+      -webkit-mask-image: radial-gradient(
+        ellipse 90% 100% at 50% 100%,
+        rgba(0,0,0,0.5) 30%,
+        rgba(0,0,0,0.25) 60%,
+        transparent 100%
+      );
+      mask-image: radial-gradient(
+        ellipse 90% 100% at 50% 100%,
+        rgba(0,0,0,0.5) 30%,
+        rgba(0,0,0,0.25) 60%,
+        transparent 100%
+      );
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+    }
+
+    .manifesto-section::before {
+      content: '';
+      position: absolute;
+      bottom: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 920px; height: 920px;
+      border-radius: 50%;
+      border: 1px solid rgba(212,204,196,0.07);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .manifesto-section::after {
+      content: '';
+      position: absolute;
+      bottom: -220px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 680px; height: 680px;
+      border-radius: 50%;
+      border: 1px solid rgba(212,204,196,0.05);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .manifesto-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 860px;
+      margin: 0 auto;
+      overflow: visible;
+    }
+
+    .manifesto-overline {
+      font-family: 'Courier Prime', monospace;
+      font-size: 9px;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      visibility: hidden;
+    }
+
+    .manifesto-overline::before,
+    .manifesto-overline::after {
+      content: '';
+      width: 48px;
+      height: 1px;
+      background: var(--rule-dark);
+    }
+
+    .manifesto-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(28px, 4vw, 52px);
+      line-height: 1.45;
+      letter-spacing: 0.02em;
+      color: var(--bone);
+      margin-bottom: 56px;
+      overflow: visible;
+    }
+
+    .manifesto-quote strong {
+      font-style: normal;
+      font-weight: 400;
+      font-family: 'Cormorant SC', serif;
+      color: var(--offwhite);
+    }
+
+    .manifesto-quote .word {
+      display: inline-block;
+      visibility: hidden;
+    }
+
+    .manifesto-body {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(15px, 1.5vw, 18px);
+      font-weight: 300;
+      line-height: 1.95;
+      letter-spacing: 0.03em;
+      color: var(--ink-muted);
+      max-width: 620px;
+      margin: 0 auto 64px;
+      visibility: hidden;
+    }
+
+    .manifesto-cta-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      visibility: hidden;
+    }
+
+    .footer-strip {
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 32px 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10,8,6,0.98);
+      visibility: hidden;
+    }
+
+    .footer-logo {
+      font-family: 'Cormorant SC', serif;
+      font-weight: 300;
+      font-size: 14px;
+      letter-spacing: 0.28em;
+      color: var(--ink-muted);
+    }
+
+    .footer-copy {
+      font-family: 'Courier Prime', monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+
+    @media (max-width: 900px) {
+      .hero-content { padding: 0 32px 64px; }
+      .feature-section {
+        grid-template-columns: 1fr;
+        padding: 100px 32px;
+        gap: 48px;
+      }
+      .feature-section.reverse .feature-img-wrap { order: 0; }
+      .feature-section.reverse .feature-text     { order: 0; }
+      .manifesto-section { padding: 100px 32px 140px; }
+      .manifesto-bg-image { width: 100%; height: 340px; }
+      .footer-strip { padding: 24px 32px; flex-direction: column; gap: 12px; text-align: center; }
+      .hero-scroll-hint { right: 32px; }
+    }
+
+    @media (max-width: 560px) {
+      .hero-title { font-size: 56px; }
+      .feature-title { font-size: 32px; }
+      .manifesto-quote { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero-bg"      id="heroBg"></div>
+  <div class="hero-bg-dark" id="heroBgDark"></div>
+  <div class="hero-bg-grain"></div>
+
+  <div id="page-wrapper">
+
+    <section class="hero">
+      <div class="hero-content">
+        <p class="hero-eyebrow"  id="heroEyebrow">A Short Filmmakers' Social Platform</p>
+        <h1 class="hero-title"   id="heroTitle">Find &<br><em>Be Found</em></h1>
+        <p class="hero-subtitle" id="heroSubtitle">Where every story finds its cast, and every voice finds its story.</p>
+        <div class="hero-cta-row" id="heroCta">
+          <a href="http://localhost:3000/login" class="hero-btn filled">Launch App</a>
+          
+        </div>
+        
+      </div>
+      <div class="hero-scroll-hint" id="scrollHint">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
+      </div>
+    </section>
+
+    <div class="scroll-canvas">
+
+      <section class="feature-section" data-feature="1">
+        <div class="feature-img-wrap">
+          <img src="images/Wall2.png" alt="The Stage" />
+        </div>
+        <div class="feature-text">
+          <div class="feature-index">01 &nbsp; What's in it for Directors?</div>
+          <h2 class="feature-title">Where <em>stories</em><br>find their faces.</h2>
+          <p class="feature-body">Stories are written, Screenplays are drafted, but it is not documents that reach user screens. FilMini offers a platform to connect with a wide range of talented filmmakers, who can contribute on and off screen. Directors can choose people to work with by viewing their previous work and can be selective to match the descriptions in their mind.  What a shift from asking friends if they could act!</p>
+          <p class="feature-tag">Public Auditions &nbsp;·&nbsp; Scroll Content &nbsp;·&nbsp; Networking</p>
+        </div>
+      </section>
+
+      <div class="section-rule"></div>
+
+      <section class="feature-section reverse" data-feature="2">
+        <div class="feature-text">
+          <div class="feature-index">02 &nbsp; Storage and Documentation </div>
+          <h2 class="feature-title">Worried<br>about <em>losing your work?</em></h2>
+<p class="feature-body">Where closing files without saving is a thing of the past. Our secure cloud storage ensures your work is always safe and accessible. Save your story and screenplay drafts, grant co-authors access to edit, store video clips scene-by-scene alongside editor notes. Now you don't need to fear losing a hard drive!</p>
+<p class="feature-tag">Story Screenplay Editor &nbsp;·&nbsp; Clips Page &nbsp;·&nbsp; Co-Authors</p>
+        </div>
+        <div class="feature-img-wrap">
+          <img src="images/Wall3.png" alt="The Cast" />
+        </div>
+      </section>
+
+      <div class="section-rule"></div>
+
+      <section class="feature-section" data-feature="3">
+        <div class="feature-img-wrap">
+          <img src="images/Wall4.png" alt="The Script" />
+        </div>
+        <div class="feature-text">
+          <div class="feature-index">03 &nbsp; What's in it for Actors?</div>
+<h2 class="feature-title"><em>REACH OUT</em><br>to directors from your abode.</h2>
+<p class="feature-body">Actors can showcase their talent and connect with directors directly through our platform. Post content to your profile, mention collaborators in each post, participate in open auditions, and get discovered by casting directors who are looking for the perfect fit for their projects.</p>
+<p class="feature-tag">Open Auditions &nbsp;·&nbsp; Media Gallery &nbsp;·&nbsp; Collaborators</p>
+        </div>
+      </section>
+
+      <div class="section-rule"></div>
+
+      <section class="feature-section reverse" data-feature="4">
+        <div class="feature-text">
+          <div class="feature-index">04 &nbsp; The Application</div>
+          <h2 class="feature-title">An application that<br><em>artists and the art itself</em> appreciate.</h2>
+<p class="feature-body">This application is built by a team that admires movies, respects the craft, and believes in the power of storytelling. This app is a reminder that art is the only innate human skill that can't be replaced by machines. And we promise: there's much more to come.</p>
+        </div>
+        <div class="feature-img-wrap">
+          <img src="images/Wall1.png" alt="The Network" />
+        </div>
+      </section>
+
+      <section class="manifesto-section">
+        <div class="manifesto-bg-image"></div>
+
+        <div class="manifesto-inner">
+          <p class="manifesto-overline">The FilMini Manifesto</p>
+          <p class="manifesto-quote" id="manifestoQuote">
+  Film is not created alone —<br>
+  it lives in <strong>directors</strong> who see stories in strangers,<br>
+  <strong>actors</strong> who dare to go beyond themselves,<br>
+  and <strong>artists</strong> whose craft defies imitation.<br>
+  FilMini: where <strong>every story finds its makers</strong>.
+</p>
+          <p class="manifesto-body">FilMini exists for the ones who believe in the work before the applause. For the director who casts with instinct. For the actor who prepares in silence. For the writer who rewrites at midnight. This platform was built for you — and for everyone you haven't met yet.</p>
+          <div class="manifesto-cta-row">
+            <a href="http://localhost:3000/login" class="hero-btn filled">Launch App</a>
+           
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer-strip">
+        <div class="footer-logo">FilMini</div>
+        
+      </footer>
+
+    </div>
+  </div>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ease       = "power3.out";
+    const easeSmooth = "power2.inOut";
+
+    gsap.to("#heroBg", {
+      opacity: 0.5,
+      duration: 1.8,
+      ease: easeSmooth
+    });
+
+    const introTl = gsap.timeline({ delay: 1.0 });
+
+    introTl.to("#page-wrapper", { opacity: 1, duration: 1.0, ease: easeSmooth }, 0);
+    introTl.to("#heroEyebrow",  { autoAlpha: 1, y: 0, duration: 1.0, ease: ease }, 0.4);
+    introTl.to("#heroTitle",    { autoAlpha: 1, y: 0, duration: 1.0, ease: ease }, 0.55);
+    introTl.to("#heroSubtitle", { autoAlpha: 1, y: 0, duration: 1.0, ease: ease }, 0.75);
+    introTl.to("#heroCta",      { autoAlpha: 1, y: 0, duration: 1.0, ease: ease }, 0.9);
+    introTl.to("#scrollHint",   { autoAlpha: 1, duration: 1.0, ease: ease }, 1.1);
+
+    gsap.to("#heroBgDark", {
+      opacity: 0.88,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".hero",
+        start: "top top",
+        end: "bottom top",
+        scrub: 0.8
+      }
+    });
+
+    document.querySelectorAll(".feature-section img").forEach(img => {
+      const checkAspect = () => {
+        if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+          if (img.naturalWidth / img.naturalHeight > 1.2) {
+            img.closest(".feature-section").classList.add("landscape");
+          }
+        }
+      };
+      img.complete ? checkAspect() : img.addEventListener("load", checkAspect);
+    });
+
+    function buildSectionTl(section, delay) {
+      const imgWrap   = section.querySelector(".feature-img-wrap");
+      const img       = section.querySelector("img");
+      const index     = section.querySelector(".feature-index");
+      const title     = section.querySelector(".feature-title");
+      const body      = section.querySelector(".feature-body");
+      const tag       = section.querySelector(".feature-tag");
+      const isReverse = section.classList.contains("reverse");
+
+      const cover = document.createElement("div");
+      cover.style.cssText = `
+        position:absolute; inset:0;
+        background:#0a0806;
+        z-index:2;
+        border-radius:0px 12px 12px 12px;
+        transform-origin:${isReverse ? "left" : "right"};
+      `;
+      imgWrap.appendChild(cover);
+
+      const tl = gsap.timeline({ delay: delay || 0 });
+      const textDir = isReverse ? -20 : 20;
+
+      tl.fromTo(img,
+        { scale: 1.04, filter: "grayscale(60%) contrast(1.1)" },
+        { scale: 1,    filter: "grayscale(18%) contrast(1.04)", duration: 1.4, ease: ease },
+        0
+      );
+      tl.to(cover, { scaleX: 0, duration: 1.0, ease: "power4.inOut" }, 0.1);
+      tl.fromTo(index, { autoAlpha: 0, x: textDir * 0.5 }, { autoAlpha: 1, x: 0, duration: 1.1, ease: "power2.out" }, 0.3);
+      tl.fromTo(title, { autoAlpha: 0, y: 22 },            { autoAlpha: 1, y: 0, duration: 1.4, ease: "power2.out" }, 0.5);
+      tl.fromTo(body,  { autoAlpha: 0, y: 18 },            { autoAlpha: 1, y: 0, duration: 1.3, ease: "power2.out" }, 0.7);
+      tl.fromTo(tag,   { autoAlpha: 0, y: 12 },            { autoAlpha: 1, y: 0, duration: 1.0, ease: "power2.out" }, 0.9);
+      return tl;
+    }
+
+    document.querySelectorAll(".feature-section").forEach((section) => {
+      const rect = section.getBoundingClientRect();
+      const inView = rect.top < window.innerHeight && rect.bottom > 0;
+
+      if (inView) {
+        buildSectionTl(section, 2.2);
+      } else {
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top 88%",
+          onEnter: () => buildSectionTl(section, 0),
+          once: true
+        });
+      }
+    });
+
+    document.querySelectorAll(".section-rule").forEach(el => {
+      gsap.fromTo(el,
+        { scaleX: 0, transformOrigin: "left" },
+        { scaleX: 1, duration: 1.2, ease: ease,
+          scrollTrigger: { trigger: el, start: "top 88%", toggleActions: "play none none none" }
+        }
+      );
+    });
+
+    const manifestoQuote = document.getElementById("manifestoQuote");
+
+    function wrapWords(el) {
+      el.childNodes.forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const words = node.textContent.split(/(\s+)/);
+          const frag  = document.createDocumentFragment();
+          words.forEach(w => {
+            if (w.trim()) {
+              const span = document.createElement("span");
+              span.className = "word";
+              span.textContent = w;
+              frag.appendChild(span);
+            } else if (w) {
+              frag.appendChild(document.createTextNode(w));
+            }
+          });
+          node.parentNode.replaceChild(frag, node);
+        } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== "BR") {
+          wrapWords(node);
+        }
+      });
+    }
+    wrapWords(manifestoQuote);
+
+    gsap.fromTo(manifestoQuote.querySelectorAll(".word"),
+      { autoAlpha: 0, y: 10 },
+      { autoAlpha: 1, y: 0, duration: 0.85, stagger: 0.055, ease: ease,
+        scrollTrigger: { trigger: manifestoQuote, start: "top 80%", toggleActions: "play none none none" }
+      }
+    );
+
+    gsap.fromTo([".manifesto-body", ".manifesto-cta-row"],
+      { autoAlpha: 0, y: 20 },
+      { autoAlpha: 1, y: 0, duration: 1.4, stagger: 0.35, ease: "power2.out",
+        scrollTrigger: { trigger: ".manifesto-body", start: "top 84%", toggleActions: "play none none none" }
+      }
+    );
+
+    gsap.fromTo(".manifesto-overline",
+      { autoAlpha: 0, scaleX: 0.92 },
+      { autoAlpha: 1, scaleX: 1, duration: 0.9, ease: ease,
+        scrollTrigger: { trigger: ".manifesto-overline", start: "top 84%", toggleActions: "play none none none" }
+      }
+    );
+
+    gsap.to(".manifesto-bg-image", {
+      opacity: 1,
+      duration: 1.8,
+      ease: easeSmooth,
+      scrollTrigger: {
+        trigger: ".manifesto-section",
+        start: "top 75%",
+        toggleActions: "play none none none"
+      }
+    });
+
+    gsap.fromTo(".footer-strip",
+      { autoAlpha: 0 },
+      { autoAlpha: 1, duration: 1.0, ease: ease,
+        scrollTrigger: { trigger: ".footer-strip", start: "top 90%", toggleActions: "play none none none" }
+      }
+    );
+  </script>
+</body>
+</html>
