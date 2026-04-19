@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow:
+
+Sitemap: https://www.filmini.in/sitemap.xml
+
+# IndexNow verification key
+# Replace YOUR_KEY_HERE with your actual IndexNow key after registration
+# Example: 1234567890abcdef1234567890abcdef
