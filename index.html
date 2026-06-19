@@ -527,6 +527,98 @@
       visibility: hidden;
     }
 
+    /* ── Contact Section ─────────────────────────────────── */
+
+    .contact-section {
+      padding: 120px 80px 140px;
+      text-align: center;
+      background: rgba(10,8,6,0.98);
+      position: relative;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .contact-overline {
+      font-family: 'Courier Prime', monospace;
+      font-size: 9px;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      visibility: hidden;
+    }
+
+    .contact-overline::before,
+    .contact-overline::after {
+      content: '';
+      width: 48px;
+      height: 1px;
+      background: var(--rule-dark);
+    }
+
+    .contact-title {
+      font-family: 'Cormorant SC', serif;
+      font-weight: 300;
+      font-size: clamp(30px, 3.6vw, 46px);
+      letter-spacing: 0.06em;
+      color: var(--bone);
+      margin-bottom: 20px;
+      visibility: hidden;
+    }
+
+    .contact-title em {
+      font-style: italic;
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--rule);
+    }
+
+    .contact-body {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(16px, 1.5vw, 19px);
+      font-weight: 300;
+      line-height: 1.8;
+      color: var(--rule);
+      max-width: 520px;
+      margin: 0 auto 40px;
+      visibility: hidden;
+    }
+
+    .contact-email-link {
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      padding: 16px 36px;
+      border-radius: var(--btn-radius);
+      border: 1px solid var(--bone);
+      background: transparent;
+      color: var(--bone);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      transition: color 0.4s var(--ease), transform 0.3s var(--ease);
+      visibility: hidden;
+    }
+
+    .contact-email-link::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--bone);
+      border-radius: inherit;
+      transform: translateY(105%);
+      transition: transform 0.42s var(--ease);
+      z-index: -1;
+    }
+
+    .contact-email-link:hover { color: var(--ink); transform: translateY(-2px); }
+    .contact-email-link:hover::after { transform: translateY(0); }
+
     .footer-strip {
       border-top: 1px solid rgba(255,255,255,0.07);
       padding: 32px 80px;
@@ -564,6 +656,7 @@
       .feature-section.reverse .feature-text     { order: 0; }
       .manifesto-section { padding: 100px 32px 140px; }
       .manifesto-bg-image { width: 100%; height: 340px; }
+      .contact-section { padding: 90px 32px 110px; }
       .footer-strip { padding: 24px 32px; flex-direction: column; gap: 12px; text-align: center; }
       .hero-scroll-hint { right: 32px; }
     }
@@ -673,6 +766,13 @@
            
           </div>
         </div>
+      </section>
+
+      <section class="contact-section">
+        <p class="contact-overline" id="contactOverline">Get in Touch</p>
+        <h2 class="contact-title" id="contactTitle">Contact <em>Us</em></h2>
+        <p class="contact-body" id="contactBody">For queries, support, or collaboration opportunities, reach out to us anytime — we'd love to hear from you.</p>
+        <a href="mailto:filmini.help@gmail.com" class="contact-email-link" id="contactEmail">filmini.help@gmail.com</a>
       </section>
 
       <footer class="footer-strip">
@@ -842,6 +942,13 @@
         toggleActions: "play none none none"
       }
     });
+
+    gsap.fromTo(["#contactOverline", "#contactTitle", "#contactBody", "#contactEmail"],
+      { autoAlpha: 0, y: 18 },
+      { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.15, ease: "power2.out",
+        scrollTrigger: { trigger: ".contact-section", start: "top 82%", toggleActions: "play none none none" }
+      }
+    );
 
     gsap.fromTo(".footer-strip",
       { autoAlpha: 0 },
